@@ -1,25 +1,46 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Bochurim Display</title>
-  <script>
-    const links = [
-      "https://rabbibergstein-hub.github.io/Mivtza-Yedios-Klaliyos-Dashboard/",
-      "https://docs.google.com/presentation/d/e/12f9xdC-K1sLx8Zos4uFpII_GPhKg7iM8QTVrEr9Rh9w/embed?start=true&loop=true&delayms=30000"
-    ];
+  <meta charset="UTF-8">
+  <title>Mivtza Display</title>
 
-    let index = 0;
-
-    function switchPage() {
-      document.getElementById("frame").src = links[index];
-      index = (index + 1) % links.length;
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background: black;
+      overflow: hidden;
     }
 
-    setInterval(switchPage, 30000);
-    window.onload = switchPage;
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+  </style>
+
+  <script>
+    const pages = [
+      "https://rabbibergstein-hub.github.io/Mivtza-Yedios-Klaliyos-Dashboard/",
+      "https://docs.google.com/presentation/d/e/2PACX-1vSO-qw-BQKFidxCH7uLWlgC0vHbd-0S_PTECGZJwqzy0xl9Q_FqjuY-FqYs5-IB6ZjvEHhjD2Q_ekjt/pubembed?start=true&loop=true&delayms=30000"
+    ];
+
+    let current = 0;
+
+    function rotatePages() {
+      document.getElementById("screen").src = pages[current];
+      current = (current + 1) % pages.length;
+    }
+
+    window.onload = function() {
+      rotatePages();
+      setInterval(rotatePages, 30000); // switch every 30 seconds
+    };
   </script>
 </head>
-<body style="margin:0;">
-  <iframe id="frame" width="100%" height="100%" style="border:none;"></iframe>
+
+<body>
+  <iframe id="screen"></iframe>
 </body>
 </html>
