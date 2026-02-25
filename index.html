@@ -3,17 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <title>Mivtza Display</title>
+
   <style>
     html, body {
       margin: 0;
       padding: 0;
       height: 100%;
       background: black;
-      font-family: sans-serif;
       overflow: hidden;
     }
 
-    /* Stack iframes on top of each other */
+    /* This stacks the two windows on top of each other */
     .screen {
       position: absolute;
       top: 0;
@@ -21,45 +21,47 @@
       width: 100%;
       height: 100%;
       border: none;
-      transition: opacity 1s ease-in-out; /* Smooth fade transition */
+      transition: opacity 1.5s ease-in-out; /* Makes the switch look professional */
     }
 
+    /* Hide the screen by making it transparent */
     .hidden {
       opacity: 0;
-      pointer-events: none; /* Prevents clicking hidden iframe */
+      z-index: 0;
+      pointer-events: none;
     }
 
+    /* Show the screen */
     .visible {
       opacity: 1;
+      z-index: 1;
       pointer-events: auto;
     }
   </style>
 
   <script>
-    let currentIdx = 0;
+    let current = 0;
 
-    function rotatePages() {
-      const screens = document.querySelectorAll('.screen');
-      
-      // Toggle classes to fade in/out
-      screens.forEach((screen, index) => {
-        if (index === currentIdx) {
-          screen.classList.add('visible');
-          screen.classList.remove('hidden');
-        } else {
-          screen.classList.add('hidden');
-          screen.classList.remove('visible');
-        }
-      });
+    function rotate() {
+      const dashboard = document.getElementById("dashboard");
+      const slides = document.getElementById("slides");
 
-      // Update index for next rotation
-      currentIdx = (currentIdx + 1) % screens.length;
+      if (current === 0) {
+        // Show Dashboard, Hide Slides
+        dashboard.className = "screen visible";
+        slides.className = "screen hidden";
+        current = 1;
+      } else {
+        // Show Slides, Hide Dashboard
+        dashboard.className = "screen hidden";
+        slides.className = "screen visible";
+        current = 0;
+      }
     }
 
     window.onload = function() {
-      // Start the rotation
-      rotatePages(); 
-      setInterval(rotatePages, 1000); // Switch every 30 seconds
+      // Start rotating every 30 seconds
+      setInterval(rotate, 30000); 
     };
   </script>
 </head>
@@ -67,14 +69,14 @@
 <body>
   <iframe 
     id="dashboard" 
-    class="screen" 
+    class="screen visible" 
     src="https://rabbibergstein-hub.github.io/Mivtza-Yedios-Klaliyos-Dashboard/">
   </iframe>
 
   <iframe 
     id="slides" 
     class="screen hidden" 
-    src="https://docs.google.com/presentation/d/e/2PACX-1vSO-qw-BQKFidxCH7uLWlgC0vHbd-0S_PTECGZJwqzy0xl9Q_FqjuY-FqYs5-IB6ZjvEHhjD2Q_ekjt/embed?start=true&loop=true&delayms=1000">
+    src="https://docs.google.com/presentation/d/e/2PACX-1vSO-qw-BQKFidxCH7uLWlgC0vHbd-0S_PTECGZJwqzy0xl9Q_FqjuY-FqYs5-IB6ZjvEHhjD2Q_ekjt/embed?start=true&loop=true&delayms=30000">
   </iframe>
 </body>
 </html>
