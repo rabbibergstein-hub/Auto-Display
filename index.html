@@ -39,28 +39,27 @@
     }
   </style>
 
-  <script>
+<script>
     let current = 0;
 
     function rotate() {
       const dashboard = document.getElementById("dashboard");
       const slides = document.getElementById("slides");
 
+      // Logic: If current is 0, show SLIDES. If current is 1, show DASHBOARD.
       if (current === 0) {
-        // Show Dashboard, Hide Slides
-        dashboard.className = "screen visible";
-        slides.className = "screen hidden";
-        current = 1;
-      } else {
-        // Show Slides, Hide Dashboard
         dashboard.className = "screen hidden";
         slides.className = "screen visible";
+        current = 1;
+      } else {
+        dashboard.className = "screen visible";
+        slides.className = "screen hidden";
         current = 0;
       }
     }
 
     window.onload = function() {
-      // Start rotating every 20 seconds
+      // We wait 20 seconds BEFORE the first flip happens.
       setInterval(rotate, 20000); 
     };
   </script>
