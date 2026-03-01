@@ -1,7 +1,8 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mivtza Display</title>
 
   <style>
@@ -11,6 +12,7 @@
       height: 100%;
       background: black;
       overflow: hidden;
+      font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     }
 
     /* This stacks the two windows on top of each other */
@@ -37,35 +39,115 @@
       z-index: 1;
       pointer-events: auto;
     }
+
+    /* Black mask for Google Slides bottom bar */
+    #slides-mask {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 35px; /* Adjust height if the Google bar is still visible */
+      background: black;
+      z-index: 50; /* Above the iframe, but below the clock */
+      transition: opacity 1.5s ease-in-out;
+    }
+
+    /* Enhanced Floating Clock Overlay (Top Left) */
+    #clock-container {
+      position: absolute;
+      top: 30px;
+      left: 30px;
+      z-index: 100;
+      background: rgba(15, 15, 15, 0.75);
+      color: white;
+      padding: 15px 25px;
+      border-radius: 16px;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      pointer-events: none;
+    }
+
+    #clock-time {
+      font-size: 3.5rem;
+      font-weight: 700;
+      letter-spacing: -1px;
+      line-height: 1;
+    }
+
+    #clock-ampm {
+      font-size: 1.2rem;
+      text-transform: uppercase;
+      font-weight: 600;
+      opacity: 0.8;
+    }
   </style>
 
-<script>
+  <script>
     let current = 0;
 
     function rotate() {
       const dashboard = document.getElementById("dashboard");
       const slides = document.getElementById("slides");
+      const mask = document.getElementById("slides-mask");
 
-      // Logic: If current is 0, show SLIDES. If current is 1, show DASHBOARD.
       if (current === 0) {
+        // Show Slides, Hide Dashboard
         dashboard.className = "screen hidden";
         slides.className = "screen visible";
+        mask.className = "visible"; // Show the black bar
         current = 1;
       } else {
+        // Show Dashboard, Hide Slides
         dashboard.className = "screen visible";
         slides.className = "screen hidden";
+        mask.className = "hidden"; // Hide the black bar
         current = 0;
       }
     }
 
+    function updateClock() {
+      const timeElement = document.getElementById("clock-time");
+      const ampmElement = document.getElementById("clock-ampm");
+      const now = new Date();
+      
+      let hours = now.getHours();
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      const ampm = hours >= 12 ? 'PM' : 'AM';
+      
+      // Convert to 12-hour format
+      hours = hours % 12;
+      hours = hours ? hours : 12; // the hour '0' should be '12'
+      
+      timeElement.textContent = `${hours}:${minutes}`;
+      ampmElement.textContent = ampm;
+    }
+
     window.onload = function() {
-      // We wait 20 seconds BEFORE the first flip happens.
+      // Rotate iframes every 20 seconds
       setInterval(rotate, 20000); 
+
+      // Update the clock every second
+      updateClock();
+      setInterval(updateClock, 1000);
     };
   </script>
 </head>
 
 <body>
+  <!-- Floating Designed Clock -->
+  <div id="clock-container">
+    <span id="clock-time">12:00</span>
+    <span id="clock-ampm">AM</span>
+  </div>
+
+  <!-- Masking Bar for Google Slides controls -->
+  <div id="slides-mask" class="hidden"></div>
+
   <iframe 
     id="dashboard" 
     class="screen visible" 
