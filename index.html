@@ -7,106 +7,71 @@
 
   <style>
     html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      background: black;
-      overflow: hidden;
+      margin: 0; padding: 0; height: 100%;
+      background: black; overflow: hidden;
       font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     }
 
-    /* This stacks the two windows on top of each other */
     .screen {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      border: none;
-      transition: opacity 1.5s ease-in-out; /* Makes the switch look professional */
-    }
-
-    /* Hide the screen by making it transparent */
-    .hidden {
-      opacity: 0;
-      z-index: 0;
-      pointer-events: none;
-    }
-
-    /* Show the screen */
-    .visible {
-      opacity: 1;
-      z-index: 1;
-      pointer-events: auto;
-    }
-
-    /* Black mask for Google Slides bottom bar */
-    #slides-mask {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      height: 35px; /* Adjust height if the Google bar is still visible */
-      background: black;
-      z-index: 50; /* Above the iframe, but below the clock */
+      position: absolute; top: 0; left: 0;
+      width: 100%; height: 100%; border: none;
       transition: opacity 1.5s ease-in-out;
     }
 
-    /* Enhanced Floating Clock Overlay (Top Left) */
+    .hidden { opacity: 0; z-index: 0; pointer-events: none; }
+    .visible { opacity: 1; z-index: 1; pointer-events: auto; }
+
+    #slides-mask {
+      position: absolute; bottom: 0; left: 0;
+      width: 100%; height: 35px; background: black;
+      z-index: 50; transition: opacity 1.5s ease-in-out;
+    }
+
     #clock-container {
-      position: absolute;
-      top: 30px;
-      left: 30px;
-      z-index: 100;
-      background: rgba(15, 15, 15, 0.75);
-      color: white;
-      padding: 15px 25px;
-      border-radius: 16px;
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
+      position: absolute; top: 30px; left: 30px; z-index: 100;
+      background: rgba(15, 15, 15, 0.75); color: white;
+      padding: 15px 25px; border-radius: 16px;
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
       border: 1px solid rgba(255, 255, 255, 0.15);
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);
-      display: flex;
-      align-items: baseline;
-      gap: 10px;
-      pointer-events: none;
+      display: flex; align-items: baseline; gap: 10px; pointer-events: none;
     }
 
-    #clock-time {
-      font-size: 3.5rem;
-      font-weight: 700;
-      letter-spacing: -1px;
-      line-height: 1;
-    }
-
-    #clock-ampm {
-      font-size: 1.2rem;
-      text-transform: uppercase;
-      font-weight: 600;
-      opacity: 0.8;
-    }
+    #clock-time { font-size: 3.5rem; font-weight: 700; letter-spacing: -1px; line-height: 1; }
+    #clock-ampm { font-size: 1.2rem; text-transform: uppercase; font-weight: 600; opacity: 0.8; }
   </style>
 
   <script>
-    let current = 0;
+    // --- CONFIGURATION ---
+    const slideBaseUrl = "https://docs.google.com/presentation/d/e/2PACX-1vSO-qw-BQKFidxCH7uLWlgC0vHbd-0S_PTECGZJwqzy0xl9Q_FqjuY-FqYs5-IB6ZjvEHhjD2Q_ekjt/embed?";
+    const totalSlides = 15; // Set this to the total number of slides in your deck
+    
+    let currentMode = "dashboard"; 
+    let lastSlideViewed = 1;
 
     function rotate() {
       const dashboard = document.getElementById("dashboard");
       const slides = document.getElementById("slides");
       const mask = document.getElementById("slides-mask");
 
-      if (current === 0) {
-        // Show Slides, Hide Dashboard
+      if (currentMode === "dashboard") {
+        // Prepare the slide URL with the "bookmark"
+        slides.src = slideBaseUrl + "slide=" + lastSlideViewed;
+
+        // Show Slides
         dashboard.className = "screen hidden";
         slides.className = "screen visible";
-        mask.className = "visible"; // Show the black bar
-        current = 1;
+        mask.style.opacity = "1";
+        currentMode = "slides";
       } else {
-        // Show Dashboard, Hide Slides
+        // Bookmark the NEXT slide before hiding
+        lastSlideViewed = (lastSlideViewed % totalSlides) + 1;
+
+        // Show Dashboard
         dashboard.className = "screen visible";
         slides.className = "screen hidden";
-        mask.className = "hidden"; // Hide the black bar
-        current = 0;
+        mask.style.opacity = "0";
+        currentMode = "dashboard";
       }
     }
 
@@ -114,50 +79,32 @@
       const timeElement = document.getElementById("clock-time");
       const ampmElement = document.getElementById("clock-ampm");
       const now = new Date();
-      
       let hours = now.getHours();
       const minutes = String(now.getMinutes()).padStart(2, '0');
       const ampm = hours >= 12 ? 'PM' : 'AM';
-      
-      // Convert to 12-hour format
-      hours = hours % 12;
-      hours = hours ? hours : 12; // the hour '0' should be '12'
-      
+      hours = hours % 12 || 12;
       timeElement.textContent = `${hours}:${minutes}`;
       ampmElement.textContent = ampm;
     }
 
     window.onload = function() {
-      // Rotate iframes every 20 seconds
-      setInterval(rotate, 20000); 
-
-      // Update the clock every second
       updateClock();
       setInterval(updateClock, 1000);
+      setInterval(rotate, 20000); // Switch every 20 seconds
     };
   </script>
 </head>
 
 <body>
-  <!-- Floating Designed Clock -->
   <div id="clock-container">
     <span id="clock-time">12:00</span>
     <span id="clock-ampm">AM</span>
   </div>
 
-  <!-- Masking Bar for Google Slides controls -->
-  <div id="slides-mask" class="hidden"></div>
+  <div id="slides-mask" style="opacity:0"></div>
 
-  <iframe 
-    id="dashboard" 
-    class="screen visible" 
-    src="https://rabbibergstein-hub.github.io/Mivtza-Yedios-Klaliyos-Dashboard/">
-  </iframe>
-
-  <iframe 
-    id="slides" 
-    class="screen hidden" 
-    src="https://docs.google.com/presentation/d/e/2PACX-1vSO-qw-BQKFidxCH7uLWlgC0vHbd-0S_PTECGZJwqzy0xl9Q_FqjuY-FqYs5-IB6ZjvEHhjD2Q_ekjt/embed?start=true&loop=true&delayms=1000">
-  </iframe>
+  <iframe id="dashboard" class="screen visible" src="https://rabbibergstein-hub.github.io/Mivtza-Yedios-Klaliyos-Dashboard/"></iframe>
+  
+  <iframe id="slides" class="screen hidden" src=""></iframe>
 </body>
 </html>
